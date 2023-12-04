@@ -1,6 +1,7 @@
 import Order from "./../models/Order.js";
 import AppError from "../errors/AppError.js";
 import User from "./../models/User.js";
+import Product from "./../models/Product.js";
 
 const orderController = {
   // ЗАПРОС ОДНОГО ЗАКАЗА ПО ID (GET)
@@ -14,8 +15,44 @@ const orderController = {
         throw new Error("Заказ не найден в БД");
       }
 
-      if (order.userId !== req.user._id) {
+      if (!req.user.isAdmin && order.userId !== req.user._id) {
         throw new Error("Заказ не соответствует пользователю");
+      }
+
+      if (!order.isPaid) {
+        const updatedItemsArray = await Promise.all(
+          order.orderItems.map(async (item) => {
+            const product = await Product.findByPk(item._id);
+
+            const updatedItem = {
+              ...item,
+              name: product.name,
+              image: product.image,
+              price: product.price,
+            };
+
+            if (updatedItem.quantity >= product.countInStock) {
+              updatedItem.quantity = product.countInStock;
+            }
+
+            return updatedItem;
+          })
+        );
+
+        const itemsPrice = Number(
+          updatedItemsArray
+            .reduce((acc, item) => acc + item.quantity * item.price, 0)
+            .toFixed(2)
+        );
+        const shippingPrice = 300;
+        const totalPrice = itemsPrice + shippingPrice;
+
+        await order.update({
+          orderItems: updatedItemsArray,
+          itemsPrice,
+          shippingPrice,
+          totalPrice,
+        });
       }
 
       res.json(order);
@@ -31,14 +68,7 @@ const orderController = {
   // ДОБАВЛЕНИЕ ЗАКАЗА (POST)
   async create(req, res, next) {
     try {
-      const {
-        orderItems,
-        shippingAddress,
-        paymentMethod,
-        itemsPrice,
-        shippingPrice,
-        totalPrice,
-      } = req.body;
+      const { orderItems, shippingAddress, paymentMethod } = req.body;
 
       const userId = req.user._id;
 
@@ -46,9 +76,36 @@ const orderController = {
         throw new Error("Товары для заказа отсутствуют");
       }
 
+      const updatedItemsArray = await Promise.all(
+        orderItems.map(async (item) => {
+          const product = await Product.findByPk(item._id);
+
+          const updatedItem = {
+            ...item,
+            name: product.name,
+            image: product.image,
+            price: product.price,
+          };
+
+          if (updatedItem.quantity >= product.countInStock) {
+            updatedItem.quantity = product.countInStock;
+          }
+
+          return updatedItem;
+        })
+      );
+
+      const itemsPrice = Number(
+        updatedItemsArray
+          .reduce((acc, item) => acc + item.quantity * item.price, 0)
+          .toFixed(2)
+      );
+      const shippingPrice = 300;
+      const totalPrice = itemsPrice + shippingPrice;
+
       const order = await Order.create({
         userId,
-        orderItems,
+        orderItems: updatedItemsArray,
         shippingAddress,
         paymentMethod,
         itemsPrice,
@@ -91,6 +148,17 @@ const orderController = {
         isPaid,
         paidAt,
       });
+
+      await Promise.all(
+        order.orderItems.map(async (item) => {
+          const product = await Product.findByPk(item._id);
+
+          const diff = Number(product.countInStock) - Number(item.quantity);
+          const countInStock = diff > 0 ? diff : 0;
+
+          await product.update({ countInStock });
+        })
+      );
 
       res.json(order);
     } catch (e) {
