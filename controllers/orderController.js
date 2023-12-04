@@ -44,7 +44,7 @@ const orderController = {
             .reduce((acc, item) => acc + item.quantity * item.price, 0)
             .toFixed(2)
         );
-        const shippingPrice = 300;
+        const shippingPrice = itemsPrice === 0 && itemsPrice > 2000 ? 0 : 300;
         const totalPrice = itemsPrice + shippingPrice;
 
         await order.update({
@@ -100,7 +100,7 @@ const orderController = {
           .reduce((acc, item) => acc + item.quantity * item.price, 0)
           .toFixed(2)
       );
-      const shippingPrice = 300;
+      const shippingPrice = itemsPrice === 0 && itemsPrice > 2000 ? 0 : 300;
       const totalPrice = itemsPrice + shippingPrice;
 
       const order = await Order.create({
