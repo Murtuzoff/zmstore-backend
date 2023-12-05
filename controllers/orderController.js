@@ -54,7 +54,6 @@ const orderController = {
             .toFixed(2)
         );
         const shippingPrice = itemsPrice === 0 || itemsPrice > 2000 ? 0 : 300;
-
         const totalPrice = itemsPrice + shippingPrice;
 
         await order.update({
