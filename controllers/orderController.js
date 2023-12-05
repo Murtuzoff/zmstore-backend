@@ -20,7 +20,9 @@ const orderController = {
       }
 
       if (!order.isPaid) {
-        const updatedItemsArray = await Promise.all(
+        const updatedItemsArray = [];
+
+        await Promise.all(
           order.orderItems.map(async (item) => {
             const product = await Product.findByPk(item._id);
 
@@ -35,16 +37,24 @@ const orderController = {
               updatedItem.quantity = product.countInStock;
             }
 
-            return updatedItem;
+            if (Number(updatedItem.quantity) === 0) return;
+
+            updatedItemsArray.push(updatedItem);
           })
         );
+
+        if (updatedItemsArray.length === 0) {
+          await order.destroy();
+          throw new Error("Извините, товары из Вашего списка закончились.");
+        }
 
         const itemsPrice = Number(
           updatedItemsArray
             .reduce((acc, item) => acc + item.quantity * item.price, 0)
             .toFixed(2)
         );
-        const shippingPrice = itemsPrice === 0 && itemsPrice > 2000 ? 0 : 300;
+        const shippingPrice = itemsPrice === 0 || itemsPrice > 2000 ? 0 : 300;
+
         const totalPrice = itemsPrice + shippingPrice;
 
         await order.update({
@@ -76,41 +86,11 @@ const orderController = {
         throw new Error("Товары для заказа отсутствуют");
       }
 
-      const updatedItemsArray = await Promise.all(
-        orderItems.map(async (item) => {
-          const product = await Product.findByPk(item._id);
-
-          const updatedItem = {
-            ...item,
-            name: product.name,
-            image: product.image,
-            price: product.price,
-          };
-
-          if (updatedItem.quantity >= product.countInStock) {
-            updatedItem.quantity = product.countInStock;
-          }
-
-          return updatedItem;
-        })
-      );
-
-      const itemsPrice = Number(
-        updatedItemsArray
-          .reduce((acc, item) => acc + item.quantity * item.price, 0)
-          .toFixed(2)
-      );
-      const shippingPrice = itemsPrice === 0 && itemsPrice > 2000 ? 0 : 300;
-      const totalPrice = itemsPrice + shippingPrice;
-
       const order = await Order.create({
         userId,
-        orderItems: updatedItemsArray,
+        orderItems,
         shippingAddress,
         paymentMethod,
-        itemsPrice,
-        shippingPrice,
-        totalPrice,
       });
 
       res.json(order);
