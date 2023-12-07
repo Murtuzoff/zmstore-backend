@@ -18,6 +18,6 @@ app.get("/", (req, res) => {
   res.send("Hello, Vercel!");
 });
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 7000;
 
 app.listen(PORT, () => console.log("Сервер запущен на порту", PORT));
