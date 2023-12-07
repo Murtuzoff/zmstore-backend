@@ -14,6 +14,9 @@ app.use(fileUpload());
 app.use(express.json());
 app.use("/api", mainRouter);
 app.use(ErrorHandler);
+app.get("/", (req, res) => {
+  res.send("Hello, Vercel!");
+});
 
 const PORT = process.env.PORT || 8080;
 
