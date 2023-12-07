@@ -15,6 +15,6 @@ app.use(express.json());
 app.use("/api", mainRouter);
 app.use(ErrorHandler);
 
-const PORT = process.env.PORT || 7000;
+const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => console.log("Сервер запущен на порту", PORT));
