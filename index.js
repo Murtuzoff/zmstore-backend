@@ -1,5 +1,5 @@
-// import config from "dotenv/config";
-import connectDatabase from "./config/database.js";
+import config from "dotenv/config";
+// import connectDatabase from "./config/database.js";
 import express from "express";
 // import cors from "cors";
 // import mainRouter from "./routes/mainRouter.js";
