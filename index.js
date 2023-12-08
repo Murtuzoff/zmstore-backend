@@ -2,7 +2,7 @@ import config from "dotenv/config";
 // import connectDatabase from "./config/database.js";
 import express from "express";
 import cors from "cors";
-// import mainRouter from "./routes/mainRouter.js";
+import mainRouter from "./routes/mainRouter.js";
 import fileUpload from "express-fileupload";
 import ErrorHandler from "./middleware/ErrorHandler.js";
 
