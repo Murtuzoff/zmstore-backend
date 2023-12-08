@@ -6,10 +6,6 @@ import userRouter from "./userRouter.js";
 
 const mainRouter = express.Router();
 
-mainRouter.get("/", async (req, res) => {
-  res.json({ message: "Hello, world!" });
-});
-
 mainRouter.use("/order", orderRouter);
 mainRouter.use("/paypal", PayPalRouter);
 mainRouter.use("/product", productRouter);
