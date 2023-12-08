@@ -9,27 +9,26 @@ const productController = {
   // USER ЗАПРОС ВСЕХ ТОВАРОВ (GET)
   async all(req, res, next) {
     try {
-      // const pageLimit = 3;
-      // const pageCurrent = Number(req.query.pagenumber || 1);
+      const pageLimit = 3;
+      const pageCurrent = Number(req.query.pagenumber || 1);
 
-      // const keyword = req.query.keyword
-      //   ? { name: { [Op.iLike]: `%${req.query.keyword}%` } }
-      //   : {};
+      const keyword = req.query.keyword
+        ? { name: { [Op.iLike]: `%${req.query.keyword}%` } }
+        : {};
 
-      // const count = await Product.count({ where: keyword });
+      const count = await Product.count({ where: keyword });
 
-      // const productArray = await Product.findAll({
-      //   where: keyword,
-      //   limit: pageLimit,
-      //   offset: pageLimit * (pageCurrent - 1),
-      //   order: [["_id", "DESC"]],
-      // });
+      const productArray = await Product.findAll({
+        where: keyword,
+        limit: pageLimit,
+        offset: pageLimit * (pageCurrent - 1),
+        order: [["_id", "DESC"]],
+      });
 
       res.json({
-        // productArray,
-        // pageCurrent,
-        // pageCount: Math.ceil(count / pageLimit),
-        message: "Hello, world!"
+        productArray,
+        pageCurrent,
+        pageCount: Math.ceil(count / pageLimit),
       });
     } catch (e) {
       next(AppError.badRequest(e.message));
