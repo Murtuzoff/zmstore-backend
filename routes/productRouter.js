@@ -4,10 +4,6 @@ import productController from "../controllers/productController.js";
 
 const productRouter = express.Router();
 
-productRouter.get("/", async (req, res) => {
-  res.json({ message: "Hello, world!" });
-});
-
 productRouter.get("/all", protect, admin, productController.allAdmin);
 productRouter.get("/", productController.all);
 productRouter.get("/:id", productController.single);
