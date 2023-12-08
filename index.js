@@ -4,7 +4,7 @@ import express from "express";
 import cors from "cors";
 // import mainRouter from "./routes/mainRouter.js";
 import fileUpload from "express-fileupload";
-// import ErrorHandler from "./middleware/ErrorHandler.js";
+import ErrorHandler from "./middleware/ErrorHandler.js";
 
 // connectDatabase();
 const app = express();
