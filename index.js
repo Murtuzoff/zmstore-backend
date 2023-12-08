@@ -15,10 +15,6 @@ app.use(express.json());
 app.use("/api", mainRouter);
 app.use(ErrorHandler);
 
-app.get("/api", async (req, res) => {
-  res.json({ message: "Hello, world!" });
-});
-
 const PORT = process.env.PORT || 7000;
 
 app.listen(PORT, () => console.log("Сервер запущен на порту", PORT));
