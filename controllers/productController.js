@@ -1,5 +1,5 @@
 import { Op } from "sequelize";
-import { uploadFile, deleteFile } from "./../utils/fileUtils.js";
+import { saveFile, deleteFile } from "./../utils/fileUtils.js";
 import Product from "./../models/Product.js";
 import Review from "./../models/Review.js";
 import Order from "./../models/Order.js";
@@ -176,7 +176,7 @@ const productController = {
         throw new Error("Товар с таким названием уже существует");
       }
 
-      const image = uploadFile(req.files?.image) ?? "";
+      const image = (await saveFile(req.files?.image)) ?? "";
 
       const product = await Product.create({
         name,
@@ -206,7 +206,7 @@ const productController = {
       }
 
       const name = req.body.name ?? product.name;
-      const image = uploadFile(req.files?.image) ?? product.image;
+      const image = (await saveFile(req.files?.image)) ?? product.image;
       const description = req.body.description ?? product.description;
       const price = req.body.price ?? product.price;
       const countInStock = req.body.countInStock ?? product.countInStock;
@@ -243,7 +243,7 @@ const productController = {
       await product.destroy();
 
       if (productImage) {
-        deleteFile(productImage);
+        await deleteFile(productImage);
       }
 
       res.json({});
