@@ -4,7 +4,7 @@ import User from "./../models/User.js";
 import Product from "./../models/Product.js";
 
 const orderController = {
-  // ЗАПРОС ОДНОГО ЗАКАЗА ПО ID (GET)
+  // GET ORDER BY ID (GET)
   async single(req, res, next) {
     try {
       const order = await Order.findByPk(req.params.id, {
@@ -12,11 +12,11 @@ const orderController = {
       });
 
       if (!order) {
-        throw new Error("Заказ не найден в БД");
+        throw new Error("Order not found in database");
       }
 
       if (!req.user.isAdmin && order.userId !== req.user._id) {
-        throw new Error("Заказ не соответствует пользователю");
+        throw new Error("The order does not match the user's order");
       }
 
       if (!order.isPaid) {
@@ -45,7 +45,7 @@ const orderController = {
 
         if (updatedItemsArray.length === 0) {
           await order.destroy();
-          throw new Error("Извините, товары из Вашего списка закончились.");
+          throw new Error("Sorry, the products on your list are out of stock");
         }
 
         const itemsPrice = Number(
@@ -53,7 +53,7 @@ const orderController = {
             .reduce((acc, item) => acc + item.quantity * item.price, 0)
             .toFixed(2)
         );
-        const shippingPrice = itemsPrice === 0 || itemsPrice > 2000 ? 0 : 300;
+        const shippingPrice = itemsPrice === 0 || itemsPrice > 30 ? 0 : 5;
         const totalPrice = itemsPrice + shippingPrice;
 
         await order.update({
@@ -67,14 +67,14 @@ const orderController = {
       res.json(order);
     } catch (e) {
       if (e.message.startsWith("invalid input syntax for type uuid")) {
-        next(AppError.badRequest("Запрос не соответствует UUID заказа"));
+        next(AppError.badRequest("The request does not match the order UUID"));
       } else {
         next(AppError.badRequest(e.message));
       }
     }
   },
 
-  // ДОБАВЛЕНИЕ ЗАКАЗА (POST)
+  // ADD ORDER (POST)
   async create(req, res, next) {
     try {
       const { orderItems, shippingAddress, paymentMethod } = req.body;
@@ -82,7 +82,7 @@ const orderController = {
       const userId = req.user._id;
 
       if (orderItems && orderItems.length === 0) {
-        throw new Error("Товары для заказа отсутствуют");
+        throw new Error("There are no products to order");
       }
 
       const order = await Order.create({
@@ -98,17 +98,17 @@ const orderController = {
     }
   },
 
-  // ОПЛАТА ЗАКАЗА ПО ID (PUT)
+  // PAY BY ORDER ID (PUT)
   async paid(req, res, next) {
     try {
       const order = await Order.findByPk(req.params.id);
 
       if (!order) {
-        throw new Error("Заказ не найден в БД");
+        throw new Error("Order not found in database");
       }
 
       if (order.userId !== req.user._id) {
-        throw new Error("Заказ не соответствует пользователю");
+        throw new Error("The order does not match the user's order");
       }
 
       const { payer, transaction } = req.body;
@@ -145,13 +145,13 @@ const orderController = {
     }
   },
 
-  // ДОСТАВКА ЗАКАЗА ПО ID (PUT)
+  // DELIVERY BY ORDER ID (PUT)
   async delivered(req, res, next) {
     try {
       const order = await Order.findByPk(req.params.id);
 
       if (!order) {
-        throw new Error("Заказ не найден в БД");
+        throw new Error("Order not found in database");
       }
 
       const isDelivered = true;
@@ -168,7 +168,7 @@ const orderController = {
     }
   },
 
-  // ЗАПРОС ВСЕХ ЗАКАЗОВ USER (GET)
+  // USER GET ORDER LIST (GET)
   async all(req, res, next) {
     try {
       const userId = req.user._id;
@@ -184,7 +184,7 @@ const orderController = {
     }
   },
 
-  // ЗАПРОС ВСЕХ ЗАКАЗОВ ADMIN (GET)
+  // ADMIN GET ALL ORDER LIST (GET)
   async allAdmin(req, res, next) {
     try {
       const orders = await Order.findAll({

@@ -3,7 +3,7 @@ import AppError from "../errors/AppError.js";
 import { generateUserToken } from "./../utils/tokenGenerator.js";
 
 const userController = {
-  // АВТОРИЗАЦИЯ ПОЛЬЗОВАТЕЛЯ (POST)
+  // USER AUTHORIZATION (POST)
   async login(req, res, next) {
     try {
       const email = req.body.email;
@@ -12,7 +12,7 @@ const userController = {
       const user = await User.findOne({ where: { email } });
 
       if (!(user && (await user.matchPassword(password)))) {
-        throw new Error("Неверный логин или пароль");
+        throw new Error("Wrong login or password");
       }
 
       res.json({
@@ -28,7 +28,7 @@ const userController = {
     }
   },
 
-  // РЕГИСТРАЦИЯ ПОЛЬЗОВАТЕЛЯ (POST)
+  // USER REGISTRATION (POST)
   async signup(req, res, next) {
     try {
       const name = req.body.name;
@@ -36,26 +36,26 @@ const userController = {
       const password = req.body.password;
 
       if (!name) {
-        throw new Error("Не указано имя пользователя");
+        throw new Error("Username not specified");
       }
 
       if (!email) {
-        throw new Error("Не указан email пользователя");
+        throw new Error("User email is not specified");
       }
 
       const emailRegex = /^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/;
       if (!emailRegex.test(email)) {
-        throw new Error("Некорректный формат email");
+        throw new Error("Invalid email format");
       }
 
       if (!password) {
-        throw new Error("Не указан пароль пользователя");
+        throw new Error("User password not specified");
       }
 
       const existingUser = await User.findOne({ where: { email } });
 
       if (existingUser) {
-        throw new Error("Пользователь уже существует в БД");
+        throw new Error("The user already exists in the database");
       }
 
       const user = await User.create({
@@ -65,7 +65,7 @@ const userController = {
       });
 
       if (!user) {
-        throw new Error("Ошибка регистрации пользователя в БД");
+        throw new Error("Error registering user in database");
       }
 
       res.json({});
@@ -74,13 +74,13 @@ const userController = {
     }
   },
 
-  // ЗАПРОС ПОЛЬЗОВАТЕЛЯ USER (GET)
+  // GET USER PROFILE (GET)
   async profile(req, res, next) {
     try {
       const user = await User.findByPk(req.user._id);
 
       if (!user) {
-        throw new Error("Пользователь не найден в БД");
+        throw new Error("User not found in database");
       }
 
       res.json({});
@@ -89,13 +89,13 @@ const userController = {
     }
   },
 
-  // ОБНОВЛЕНИЕ ПОЛЬЗОВАТЕЛЯ USER (PUT)
+  // UPDATE USER PROFILE (PUT)
   async update(req, res, next) {
     try {
       const user = await User.findByPk(req.user._id);
 
       if (!user) {
-        throw new Error("Пользователь не найден в БД");
+        throw new Error("User not found in database");
       }
 
       const name = req.body.name ?? user.name;
@@ -109,7 +109,7 @@ const userController = {
       });
 
       if (!user) {
-        throw new Error("Ошибка обновления пользователя в БД");
+        throw new Error("Error updating user in database");
       }
 
       res.json({});
@@ -118,7 +118,7 @@ const userController = {
     }
   },
 
-  // ЗАПРОС ВСЕХ ПОЛЬЗОВАТЕЛЕЙ (GET)
+  // GET ALL USERS (GET)
   async allAdmin(req, res, next) {
     try {
       const users = await User.findAll();

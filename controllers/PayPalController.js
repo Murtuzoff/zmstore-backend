@@ -55,9 +55,9 @@ const PayPalController = {
 
       res.status(httpStatusCode).json(jsonResponse);
     } catch (error) {
-      console.error("Не удалось оформить заказ:", error);
+      console.error("Failed to place an order:", error);
 
-      res.status(500).json({ error: "Не удалось оформить заказ." });
+      res.status(500).json({ error: "Failed to place an order." });
     }
   },
 
@@ -68,9 +68,9 @@ const PayPalController = {
 
       res.status(httpStatusCode).json(jsonResponse);
     } catch (error) {
-      console.error("Не удалось оформить заказ:", error);
+      console.error("Failed to place an order:", error);
 
-      res.status(500).json({ error: "Не удалось получить данные заказа." });
+      res.status(500).json({ error: "Failed to get order details." });
     }
   },
 };

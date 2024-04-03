@@ -29,7 +29,7 @@ const User = sequelize.define("user", {
   },
 });
 
-// Метод matchPassword() для авторизации пользователя
+// matchPassword() method for user authentication
 User.prototype.matchPassword = async function (enteredPassword) {
   try {
     return await bcrypt.compare(enteredPassword, this.password);
@@ -38,7 +38,7 @@ User.prototype.matchPassword = async function (enteredPassword) {
   }
 };
 
-// Метод beforeCreate() перед созданием пользователя
+// beforeCreate() method before creating a user
 User.beforeCreate(async (user) => {
   try {
     const hashedPassword = await bcrypt.hash(user.password, 10);
@@ -48,7 +48,7 @@ User.beforeCreate(async (user) => {
   }
 });
 
-// Метод beforeUpdate() перед обновлением пользователя
+// beforeUpdate() method before user update
 User.beforeUpdate(async (user) => {
   try {
     if (user.changed("password")) {

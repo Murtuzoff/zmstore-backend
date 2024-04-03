@@ -6,7 +6,7 @@ import Order from "./../models/Order.js";
 import AppError from "../errors/AppError.js";
 
 const productController = {
-  // USER ЗАПРОС ВСЕХ ТОВАРОВ (GET)
+  // USER GET ALL PRODUCTS (GET)
   async all(req, res, next) {
     try {
       const pageLimit = 3;
@@ -35,17 +35,17 @@ const productController = {
     }
   },
 
-  // USER ЗАПРОС ТОВАРА ПО ID (GET)
+  // USER GET PRODUCT BY ID (GET)
   async single(req, res, next) {
     try {
       if (!req.params.id) {
-        throw new Error("Не указан id товара");
+        throw new Error("Product ID not specified");
       }
 
       const product = await Product.findByPk(req.params.id);
 
       if (!product) {
-        throw new Error("Товар не найден в БД");
+        throw new Error("Product not found in database");
       }
 
       const reviews = await Review.findAll({
@@ -60,17 +60,17 @@ const productController = {
     }
   },
 
-  // USER ДОБАВЛЕНИЕ НОВОГО ОТЗЫВА ПО ID ТОВАРА (POST)
+  // ADD REVIEW BY PRODUCT ID (POST)
   async review(req, res, next) {
     try {
       if (!req.params.id) {
-        throw new Error("Не указан id товара");
+        throw new Error("Product ID not specified");
       }
       if (!req.user._id) {
-        throw new Error("Не указан id пользователя");
+        throw new Error("User ID not specified");
       }
       if (!req.user.name) {
-        throw new Error("Не указано имя пользователя");
+        throw new Error("Username not specified");
       }
 
       const userName = req.user.name;
@@ -81,7 +81,7 @@ const productController = {
       const product = await Product.findByPk(productId);
 
       if (!product) {
-        throw new Error("Товар не найден в БД");
+        throw new Error("Product not found in database");
       }
 
       const foundOrders = await Order.findAll({
@@ -94,20 +94,26 @@ const productController = {
 
       if (!foundProduct) {
         res.json({
-          message: "Пожалуйста, закажите товар и дождитесь его доставки",
+          message: "Please order the product and wait for it to be delivered",
         });
+
+        return;
       }
 
       if (!foundProduct.isPaid) {
         res.json({
-          message: "Пожалуйста, оплатите товар и дождитесь его доставки",
+          message: "Please pay for the product and wait for it to be delivered",
         });
+
+        return;
       }
 
       if (!foundProduct.isDelivered) {
         res.json({
-          message: "Пожалуйста, дождитесь доставки товара",
+          message: "Please wait for the product to be delivered",
         });
+
+        return;
       }
 
       const existingReview = await Review.findOne({
@@ -116,8 +122,10 @@ const productController = {
 
       if (existingReview) {
         res.json({
-          message: "Вы уже оставили отзыв по данному товару",
+          message: "You have already left a review for this product",
         });
+
+        return;
       }
 
       await Review.create({
@@ -153,7 +161,7 @@ const productController = {
     }
   },
 
-  // ADMIN ЗАПРОС ВСЕХ ТОВАРОВ (GET)
+  // ADMIN GET ALL PRODUCTS (GET)
   async allAdmin(req, res, next) {
     try {
       const products = await Product.findAll({
@@ -166,14 +174,14 @@ const productController = {
     }
   },
 
-  // ADMIN ДОБАВЛЕНИЕ НОВОГО ТОВАРА (POST)
+  // ADD NEW PRODUCT (POST)
   async create(req, res, next) {
     try {
       const { name, description, price, countInStock } = req.body;
       const existingProduct = await Product.findOne({ where: { name } });
 
       if (existingProduct) {
-        throw new Error("Товар с таким названием уже существует");
+        throw new Error("A product with the same name already exists");
       }
 
       const image = (await saveFile(req.files?.image)) ?? "";
@@ -192,17 +200,17 @@ const productController = {
     }
   },
 
-  // ADMIN ОБНОВЛЕНИЕ ТОВАРА ПО ID (PUT)
+  // UPDATE PRODUCT BY ID (PUT)
   async update(req, res, next) {
     try {
       if (!req.params.id) {
-        throw new Error("Не указан id товара");
+        throw new Error("Product ID not specified");
       }
 
       const product = await Product.findByPk(req.params.id);
 
       if (!product) {
-        throw new Error("Товар не найден в БД");
+        throw new Error("Product not found in database");
       }
 
       const name = req.body.name ?? product.name;
@@ -225,17 +233,17 @@ const productController = {
     }
   },
 
-  // ADMIN УДАЛЕНИЕ ТОВАРА ПО ID (DELETE)
+  // DELETE PRODUCT BY ID (DELETE)
   async delete(req, res, next) {
     try {
       if (!req.params.id) {
-        throw new Error("Не указан id товара");
+        throw new Error("Product ID not specified");
       }
 
       const product = await Product.findByPk(req.params.id);
 
       if (!product) {
-        throw new Error("Товар не найден в БД");
+        throw new Error("Product not found in database");
       }
 
       const productImage = product.image;

@@ -13,7 +13,7 @@ export const generateUserToken = (id) => {
 export const generatePayPalToken = async () => {
   try {
     if (!PAYPAL_CLIENT_ID || !PAYPAL_CLIENT_SECRET) {
-      throw new Error("Oтсутствуют учётные данные API");
+      throw new Error("API credentials are missing");
     }
 
     const auth = Buffer.from(
@@ -30,6 +30,6 @@ export const generatePayPalToken = async () => {
 
     return data.access_token;
   } catch (error) {
-    console.error("Не удалось создать ключ доступа:", error);
+    console.error("Failed to create access key:", error);
   }
 };
