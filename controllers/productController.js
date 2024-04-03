@@ -9,7 +9,7 @@ const productController = {
   // USER GET ALL PRODUCTS (GET)
   async all(req, res, next) {
     try {
-      const pageLimit = 3;
+      const pageLimit = 6;
       const pageCurrent = Number(req.query.pagenumber || 1);
 
       const keyword = req.query.keyword
